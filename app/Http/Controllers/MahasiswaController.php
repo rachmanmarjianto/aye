@@ -108,7 +108,8 @@ class MahasiswaController extends Controller
                             ->join('usulan_bisnis as ub', 'ub.idusulan_bisnis', '=', 'a.idusulan_bisnis')
                             ->join('mahasiswa as mhs', 'mhs.idmahasiswa', '=', 'a.idmahasiswa')
                             ->join('users as u', 'u.idusers', '=', 'mhs.idusers')
-                            ->select('a.idanggota', 'a.tipe_anggota', 'mhs.idfakultas', 'mhs.idprogram_studi','u.nama_user as nama', 'u.nipniknim as nim')
+                            ->select('a.idanggota', 'a.tipe_anggota', 'mhs.idfakultas', 'mhs.idprogram_studi','u.nama_user as nama', 'u.nipniknim as nim', 
+                                    'mhs.nama_program_studi', 'mhs.nama_fakultas', 'mhs.nama_jenjang')
                             ->where('a.idusulan_bisnis', $idusulan_bisnis)
                             ->where('a.is_deleted', 'false')
                             ->get();
@@ -164,7 +165,9 @@ class MahasiswaController extends Controller
                             ->join('usulan_bisnis as ub', 'ub.idusulan_bisnis', '=', 'a.idusulan_bisnis')
                             ->join('mahasiswa as mhs', 'mhs.idmahasiswa', '=', 'a.idmahasiswa')
                             ->join('users as u', 'u.idusers', '=', 'mhs.idusers')
-                            ->select('a.idanggota', 'a.tipe_anggota', 'mhs.idfakultas', 'mhs.idprogram_studi','u.nama_user as nama', 'u.nipniknim as nim')
+                            ->select('a.idanggota', 'a.tipe_anggota', 'mhs.idfakultas', 
+                                    'mhs.idprogram_studi','u.nama_user as nama', 'mhs.nama_program_studi', 'mhs.nama_fakultas',
+                                    'mhs.nama_jenjang', 'u.nipniknim as nim')
                             ->where('a.idusulan_bisnis', $idusulan_bisnis)
                             ->where('a.is_deleted', 'false')
                             ->get();
@@ -301,6 +304,18 @@ class MahasiswaController extends Controller
                  ]);
              }
 
+            $data_mhs = DB::table('fdw.mahasiswa_aktif')
+                            ->where('nim_mhs', $request->nim)
+                            ->get();
+
+            if(count($data_mhs) == 0){
+                return response()->json([
+                    'code' => 404,
+                    'status' => 'error',
+                    'message' => 'Data mahasiswa aktif tidak ditemukan.'
+                 ]);
+            }
+
 
             return response()->json([
                 'code' => 200,
@@ -309,7 +324,10 @@ class MahasiswaController extends Controller
                     'nama' => $data_hasil['data']['name'],
                     'nim' => $data_hasil['data']['username'],
                     'idfakultas' => $data_hasil['data']['fakultas'],
+                    'nama_jenjang' => $data_mhs[0]->nm_jenjang,
+                    'nama_fakultas' => $data_mhs[0]->nm_fakultas,
                     'idprogram_studi' => $data_hasil['data']['mahasiswa']['ID_PROGRAM_STUDI'],
+                    'nama_program_studi' => $data_mhs[0]->nm_program_studi,
                     'idmahasiswa' => $data_hasil['data']['mahasiswa']['ID_MHS'],
                     'idusers' => $data_hasil['data']['id'],
                     'join_table' => $data_hasil['data']['join_table'],
@@ -357,11 +375,23 @@ class MahasiswaController extends Controller
 
         $cek = DB::table('users')
                     ->join('users_role', 'users.idusers', '=', 'users_role.idusers')
+                    ->join('mahasiswa', 'mahasiswa.idusers', '=', 'users.idusers')
                     ->where('nipniknim', $request->nim)
-                    ->select('users.*', 'users_role.idrole as idrole')
+                    ->select('users.*', 'users_role.idrole as idrole', 'mahasiswa.nama_program_studi', 'mahasiswa.nama_fakultas', 'mahasiswa.nama_jenjang')
                     ->get();
 
+        $array_helper = [];
+
         if(count($cek) == 0){
+
+            $data_mhs = DB::table('fdw.mahasiswa_aktif')
+                            ->where('nim_mhs', $request->nim)
+                            ->get();
+
+            $array_helper['nama_program_studi'] = $data_mhs[0]->nm_program_studi;
+            $array_helper['nama_fakultas'] = $data_mhs[0]->nm_fakultas;
+            $array_helper['nama_jenjang'] = $data_mhs[0]->nm_jenjang;
+
             $arr_insert_user = [
                 'idusers' => $request->idusers,
                 'nipniknim' => $request->nim,
@@ -373,6 +403,9 @@ class MahasiswaController extends Controller
             $arr_insert_mhs = [
                 'idmahasiswa' => $request->idmahasiswa,
                 'idusers' => $request->idusers,
+                'nama_program_studi' => $data_mhs[0]->nm_program_studi,
+                'nama_fakultas' => $data_mhs[0]->nm_fakultas,
+                'nama_jenjang' => $data_mhs[0]->nm_jenjang,
                 'idprogram_studi' => $request->idprogram_studi,
                 'idfakultas' => $request->idfakultas,
                 'created_at' => date('Y-m-d H:i:s'),
@@ -404,6 +437,11 @@ class MahasiswaController extends Controller
 
             
         }
+        else{
+            $array_helper['nama_program_studi'] = $cek[0]->nama_program_studi;
+            $array_helper['nama_fakultas'] = $cek[0]->nama_fakultas;
+            $array_helper['nama_jenjang'] = $cek[0]->nama_jenjang;
+        }
 
         $iduser = $request->idusers;
         $idusulan_bisnis = $request->idusulan_bisnis;        
@@ -418,7 +456,7 @@ class MahasiswaController extends Controller
                 'created_by' => session('userdata')['idusers'],
             ];
 
-            DB::table('anggota')->insert($arr_anggota);
+            $idanggota = DB::table('anggota')->insertGetId($arr_anggota, 'idanggota');
 
             DB::commit();
 
@@ -434,6 +472,10 @@ class MahasiswaController extends Controller
                     'idmahasiswa' => $request->idmahasiswa,
                     'idusers' => $request->idusers,
                     'join_table' => $request->join_table,
+                    'nama_program_studi' => $array_helper['nama_program_studi'],
+                    'nama_fakultas' => $array_helper['nama_fakultas'],
+                    'nama_jenjang' => $array_helper['nama_jenjang'],
+                    'idanggota' => $idanggota,
                 ]
              ]);
         } catch (\Exception $e) {

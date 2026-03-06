@@ -28,7 +28,8 @@ class AdminController extends Controller
                             ->join('usulan_bisnis as ub', 'ub.idusulan_bisnis', '=', 'a.idusulan_bisnis')
                             ->join('mahasiswa as mhs', 'mhs.idmahasiswa', '=', 'a.idmahasiswa')
                             ->join('users as u', 'u.idusers', '=', 'mhs.idusers')
-                            ->select('a.idanggota', 'a.tipe_anggota', 'mhs.idfakultas', 'mhs.idprogram_studi','u.nama_user as nama', 'u.nipniknim as nim', 'a.idusulan_bisnis')
+                            ->select('a.idanggota', 'a.tipe_anggota', 'mhs.idfakultas', 'mhs.idprogram_studi','u.nama_user as nama', 'u.nipniknim as nim', 
+                                    'a.idusulan_bisnis', 'mhs.nama_program_studi', 'mhs.nama_fakultas', 'mhs.nama_jenjang')
                             ->whereIn('a.idusulan_bisnis', $idusulan_bisnis)
                             ->where('a.is_deleted', 'false')
                             ->get();
@@ -47,6 +48,9 @@ class AdminController extends Controller
                     'idprogram_studi' => $a->idprogram_studi,
                     'nama' => $a->nama,
                     'nim' => $a->nim,
+                    'nama_program_studi' => $a->nama_program_studi,
+                    'nama_fakultas' => $a->nama_fakultas,
+                    'nama_jenjang' => $a->nama_jenjang,
                 ];
             }
         }
@@ -67,12 +71,12 @@ class AdminController extends Controller
         // dd($usulan_bisnis);
 
         if($usulan_bisnis) {
-            if($usulan_bisnis->status_pengajuan == 1){
-                return redirect()->route('admin.pendaftaran_baru_edit', ['idusulan_bisnis' => Crypt::encrypt($request->idusulan_bisnis)]);
-            }
-            else if($usulan_bisnis->status_pengajuan == 3){
+            // if($usulan_bisnis->status_pengajuan == 1){
+            //     return redirect()->route('admin.pendaftaran_baru_edit', ['idusulan_bisnis' => Crypt::encrypt($request->idusulan_bisnis)]);
+            // }
+            // else if($usulan_bisnis->status_pengajuan == 3){
                 return redirect()->route('admin.pendaftaran_baru_view', ['idusulan_bisnis' => Crypt::encrypt($request->idusulan_bisnis)]);
-            }
+            // }
         } else {
             return response()->json([
                 'code' => 404,
@@ -111,7 +115,8 @@ class AdminController extends Controller
                             ->join('usulan_bisnis as ub', 'ub.idusulan_bisnis', '=', 'a.idusulan_bisnis')
                             ->join('mahasiswa as mhs', 'mhs.idmahasiswa', '=', 'a.idmahasiswa')
                             ->join('users as u', 'u.idusers', '=', 'mhs.idusers')
-                            ->select('a.idanggota', 'a.tipe_anggota', 'mhs.idfakultas', 'mhs.idprogram_studi','u.nama_user as nama', 'u.nipniknim as nim')
+                            ->select('a.idanggota', 'a.tipe_anggota', 'mhs.idfakultas', 'mhs.idprogram_studi','u.nama_user as nama', 'u.nipniknim as nim',
+                                    'mhs.nama_program_studi', 'mhs.nama_fakultas', 'mhs.nama_jenjang')
                             ->where('a.idusulan_bisnis', $idusulan_bisnis)
                             ->where('a.is_deleted', 'false')
                             ->get();

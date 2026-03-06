@@ -141,6 +141,7 @@
                             <th>Nama</th>
                             <th>NIM</th>
                             <th>Fakultas</th>
+                            <th>Jenjang</th>
                             <th>Program Studi</th>
                             <th>Peran</th>
                             <th>Aksi</th>
@@ -151,8 +152,9 @@
                             <tr id="anggota_{{ $a->idanggota }}">
                                 <td>{{ $a->nama }}</td>
                                 <td>{{ $a->nim }}</td>
-                                <td>{{ $a->idfakultas }}</td>
-                                <td>{{ $a->idprogram_studi }}</td>
+                                <td>{{ $a->nama_fakultas }}</td>
+                                <td>{{ $a->nama_jenjang }}</td>
+                                <td>{{ $a->nama_program_studi }}</td>
                                 <td>{{ $a->tipe_anggota == 1 ? 'Ketua' : 'Anggota' }}</td>
                                 <td id="btn_anggota_{{ $a->idanggota }}">
                                     <button type="button" class="btn btn-danger" onclick="hapus({{ $a->idanggota }})">Hapus</button>
@@ -285,7 +287,7 @@
             if(status == 3){
                 let peranValues = [];
                 $('#anggota_table tbody tr').each(function() {
-                    let peran = $(this).find('td:nth-child(5)').text();
+                    let peran = $(this).find('td:nth-child(6)').text();
                     peranValues.push(peran);
                 });
                 
@@ -319,8 +321,15 @@
                 $('#input_status_pengajuan').html('Proses...');
             }
 
-            divbtnsimpan = $('#btn_update_simpan');
-            divbtnsimpan.html('Proses...');
+            if(status == 0){
+                divbtnsimpan = $('#btn_simpan');
+                divbtnsimpan.html('Proses...');
+            }
+            else{
+                divbtnsimpan = $('#btn_update_simpan');
+                divbtnsimpan.html('Proses...');
+            }
+            
             
             document.getElementById('pendaftaran_form').submit();
         }
@@ -359,8 +368,8 @@
 
                     $('#nim_anggota_hidden').val(nim);
                     $('#nama_anggota').val(response.data.nama);
-                    $('#fakultas').val(response.data.idfakultas);
-                    $('#program_studi').val(response.data.idprogram_studi);
+                    $('#fakultas').val(response.data.nama_fakultas);
+                    $('#program_studi').val(response.data.nama_jenjang + ' ' + response.data.nama_program_studi);
                     $('#idmhs').val(response.data.idmahasiswa);
                     $('#idusers_anggota_hidden').val(response.data.idusers);
                     $('#idjointable').val(response.data.join_table);
@@ -430,8 +439,9 @@
                         newRow = `<tr id="anggota_${response.data.idanggota}">
                                         <td>${response.data.nama}</td>
                                         <td>${response.data.nim}</td>
-                                        <td>${response.data.idfakultas}</td>
-                                        <td>${response.data.idprogram_studi}</td>
+                                        <td>${response.data.nama_fakultas}</td>
+                                        <td>${response.data.nama_jenjang}</td>
+                                        <td>${response.data.nama_program_studi}</td>
                                         <td>${response.data.tipe_anggota == 1 ? 'Ketua' : 'Anggota'}</td>
                                         <td id="btn_anggota_${response.data.idanggota}">
                                             <button type="button" class="btn btn-danger" onclick="hapus(${response.data.idanggota})">Hapus</button>
@@ -533,6 +543,7 @@
             btnanggota.html('Proses...');
 
             idrow = $(`#anggota_${idanggota}`);
+            console.log(idanggota);
 
             $.ajax({
                 url: "{{ route('mahasiswa.hapus_anggota') }}",

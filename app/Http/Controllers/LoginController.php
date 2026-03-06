@@ -87,6 +87,17 @@ class LoginController extends Controller
             }
 
             if(count($cek) == 0){
+                $data_mhs = DB::table('fdw.mahasiswa_aktif')
+                                ->where('nim_mhs', $data_hasil['data']['username'])
+                                ->get();
+
+                if(count($data_mhs) == 0){
+                    return back()->with('status', [
+                        'status' => 'danger',
+                        'message' => 'Data mahasiswa aktif tidak ditemukan. Pastikan Anda sudah terdaftar sebagai mahasiswa aktif.'
+                    ]);
+                }
+
                 $arr_insert = [
                     'idusers' => $data_hasil['data']['id'],
                     'nipniknim' => $data_hasil['data']['username'],
@@ -99,7 +110,10 @@ class LoginController extends Controller
                     'idmahasiswa' => $data_hasil['data']['mahasiswa']['ID_MHS'],
                     'idusers' => $data_hasil['data']['id'],
                     'idprogram_studi' => $data_hasil['data']['mahasiswa']['ID_PROGRAM_STUDI'],
+                    'nama_program_studi' => $data_mhs[0]->nm_program_studi,
                     'idfakultas' => $data_hasil['data']['fakultas'],
+                    'nama_fakultas' => $data_mhs[0]->nm_fakultas,
+                    'nama_jenjang' => $data_mhs[0]->nm_jenjang,
                     'created_at' => $ts,
                 ];
 

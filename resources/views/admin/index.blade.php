@@ -21,13 +21,14 @@
 
     <div class="card">
         <div class="card-header">
-            <h2 class="card-title">List Program AYE yang diikuti</h2>
+            <h2 class="card-title">List Program AYE yang Telah Diajukan</h2>
         </div>
         <div class="card-body">
             <div class="table-container">
                 <table class="table-striped">
                     <thead>
                         <tr>
+                            <th>No</th>
                             <th>Tahun</th>
                             <th>Nama Bisnis</th>
                             <th>Bidang</th>
@@ -37,8 +38,13 @@
                         </tr>
                     </thead>
                     <tbody>
+                        @php
+                            $no = 1;
+                        @endphp
                         @foreach($pendaftaran as $p)
+                            @if($p->status_pengajuan == 3)
                             <tr @if($p->status_pengajuan == 1) style="background-color: #edc2c3; cursor:pointer"  @elseif($p->status_pengajuan == 3) style="background-color: #c2edda;; cursor:pointer" @endif onclick="viewPendaftaranDetail({{ $p->idusulan_bisnis }})">
+                                <td>{{ $no++ }}</td>
                                 <td>{{ $p->tahun }}</td>
                                 <td>{{ $p->nama_bisnis }}</td>
                                 <td>{{ $p->nama_bidang }}</td>
@@ -63,6 +69,65 @@
                                 </td>
 
                             </tr>
+                            @endif
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h2 class="card-title">List Program AYE yang masih Draft</h2>
+        </div>
+        <div class="card-body">
+            <div class="table-container">
+                <table class="table-striped">
+                    <thead>
+                        <tr>
+                            <th>No</th>
+                            <th>Tahun</th>
+                            <th>Nama Bisnis</th>
+                            <th>Bidang</th>
+                            <th>Status Bisnis</th>
+                            <th>Status Pengajuan</th>
+                            <th>Anggota</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @php
+                            $no = 1;
+                        @endphp
+                        @foreach($pendaftaran as $p)
+                            @if($p->status_pengajuan == 1)
+                            <tr @if($p->status_pengajuan == 1) style="background-color: #edc2c3; cursor:pointer"  @elseif($p->status_pengajuan == 3) style="background-color: #c2edda;; cursor:pointer" @endif onclick="viewPendaftaranDetail({{ $p->idusulan_bisnis }})">
+                                <td>{{ $no++ }}</td>
+                                <td>{{ $p->tahun }}</td>
+                                <td>{{ $p->nama_bisnis }}</td>
+                                <td>{{ $p->nama_bidang }}</td>
+                                <td>{{ $p->status_bisnis == 1 ? 'Ide Bisnis' : 'Sudah Berjalan' }}</td>
+                                <td>
+                                    @if($p->status_pengajuan == 1)
+                                        Draft
+                                    @elseif($p->status_pengajuan == 2)
+                                        Menunggu Validasi Ketua
+                                    @elseif($p->status_pengajuan == 3)
+                                        Diajukan
+                                    @else
+                                        Unknown
+                                    @endif
+                                </td>
+                                <td>
+                                    <ul>
+                                        @foreach($anggota[$p->idusulan_bisnis] as $a)
+                                            <li>{{ $a['nama'] }} ({{ $a['nim'] }}) @if($a['tipe_anggota'] == 1) - Ketua @endif</li>
+                                        @endforeach
+                                    </ul>
+                                </td>
+
+                            </tr>
+                            @endif
                         @endforeach
                     </tbody>
                 </table>

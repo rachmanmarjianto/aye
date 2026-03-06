@@ -72,6 +72,7 @@
                             <th>Nama</th>
                             <th>NIM</th>
                             <th>Fakultas</th>
+                            <th>Jenjang</th>
                             <th>Program Studi</th>
                             <th>Peran</th>
                         </tr>
@@ -81,8 +82,9 @@
                             <tr id="anggota_{{ $a->idanggota }}">
                                 <td>{{ $a->nama }}</td>
                                 <td>{{ $a->nim }}</td>
-                                <td>{{ $a->idfakultas }}</td>
-                                <td>{{ $a->idprogram_studi }}</td>
+                                <td>{{ $a->nama_fakultas }}</td>
+                                <td>{{ $a->nama_jenjang }}</td>
+                                <td>{{ $a->nama_program_studi }}</td>
                                 <td>{{ $a->tipe_anggota == 1 ? 'Ketua' : 'Anggota' }}</td>
                             </tr>
                         @endforeach
