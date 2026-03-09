@@ -56,9 +56,11 @@
                                 </td>
                                 <td>
                                     <ul>
-                                        @foreach($anggota[$p->idusulan_bisnis] as $a)
-                                            <li>{{ $a['nama'] }} ({{ $a['nim'] }}) @if($a['tipe_anggota'] == 1) - Ketua @endif</li>
-                                        @endforeach
+                                        @if(array_key_exists($p->idusulan_bisnis, $anggota))
+                                            @foreach($anggota[$p->idusulan_bisnis] as $a)
+                                                <li>{{ $a['nama'] }} ({{ $a['nim'] }}) @if($a['tipe_anggota'] == 1) - Ketua @endif</li>
+                                            @endforeach
+                                        @endif
                                     </ul>
                                 </td>
 
