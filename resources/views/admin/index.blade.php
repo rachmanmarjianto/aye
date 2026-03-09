@@ -81,11 +81,17 @@
                                 <td>{{ $p->status_bisnis == 1 ? 'Ide Bisnis' : 'Sudah Berjalan' }}</td>
                                 <td>
                                     @if($p->status_pengajuan == 1)
-                                        Draft
+                                        <span style="color:black">Draft</span>
                                     @elseif($p->status_pengajuan == 2)
-                                        Menunggu Validasi Ketua
+                                        <span style="color:rgb(30, 0, 255);">Menunggu Validasi Ketua</span>
                                     @elseif($p->status_pengajuan == 3)
-                                        Diajukan
+                                        <span style="color:rgb(0, 170, 255);">Diajukan</span>
+                                    @elseif($p->status_pengajuan == 4)
+                                        <span style="color:green;">Lolos</span>
+                                    @elseif($p->status_pengajuan == 5)
+                                        <span style="color:red;">Tidak Lolos</span>
+                                    @elseif($p->status_pengajuan == 6)
+                                        <span style="color:rgb(255, 0, 212);">Dibatalkan</span>
                                     @else
                                         Unknown
                                     @endif
@@ -141,11 +147,149 @@
                                 <td>{{ $p->status_bisnis == 1 ? 'Ide Bisnis' : 'Sudah Berjalan' }}</td>
                                 <td>
                                     @if($p->status_pengajuan == 1)
-                                        Draft
+                                        <span style="color:black">Draft</span>
                                     @elseif($p->status_pengajuan == 2)
-                                        Menunggu Validasi Ketua
+                                        <span style="color:rgb(30, 0, 255);">Menunggu Validasi Ketua</span>
                                     @elseif($p->status_pengajuan == 3)
-                                        Diajukan
+                                        <span style="color:rgb(0, 170, 255);">Diajukan</span>
+                                    @elseif($p->status_pengajuan == 4)
+                                        <span style="color:green;">Lolos</span>
+                                    @elseif($p->status_pengajuan == 5)
+                                        <span style="color:red;">Tidak Lolos</span>
+                                    @elseif($p->status_pengajuan == 6)
+                                        <span style="color:rgb(255, 0, 212);">Dibatalkan</span>
+                                    @else
+                                        Unknown
+                                    @endif
+                                </td>
+                                <td>
+                                    <ul>
+                                        @if(array_key_exists($p->idusulan_bisnis, $anggota))
+                                            @foreach($anggota[$p->idusulan_bisnis] as $a)
+                                                <li>{{ $a['nama'] }} ({{ $a['nim'] }}) @if($a['tipe_anggota'] == 1) - Ketua @endif</li>
+                                            @endforeach
+                                        @endif
+                                    </ul>
+                                </td>
+
+                            </tr>
+                            @endif
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h2 class="card-title">List Program AYE yang Disetujui</h2>
+        </div>
+        <div class="card-body">
+            <div class="table-container">
+                <table class="table-striped" id="tabledisetujui">
+                    <thead>
+                        <tr>
+                            <th>No</th>
+                            <th>Tahun</th>
+                            <th>Nama Bisnis</th>
+                            <th>Bidang</th>
+                            <th>Status Bisnis</th>
+                            <th>Status Pengajuan</th>
+                            <th>Anggota</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @php
+                            $no = 1;
+                        @endphp
+                        @foreach($pendaftaran as $p)
+                            @if($p->status_pengajuan == 4)
+                            <tr onclick="viewPendaftaranDetail({{ $p->idusulan_bisnis }})">
+                                <td>{{ $no++ }}</td>
+                                <td>{{ $p->tahun }}</td>
+                                <td>{{ $p->nama_bisnis }}</td>
+                                <td>{{ $p->nama_bidang }}</td>
+                                <td>{{ $p->status_bisnis == 1 ? 'Ide Bisnis' : 'Sudah Berjalan' }}</td>
+                                <td>
+                                    @if($p->status_pengajuan == 1)
+                                        <span style="color:black">Draft</span>
+                                    @elseif($p->status_pengajuan == 2)
+                                        <span style="color:rgb(30, 0, 255);">Menunggu Validasi Ketua</span>
+                                    @elseif($p->status_pengajuan == 3)
+                                        <span style="color:rgb(0, 170, 255);">Diajukan</span>
+                                    @elseif($p->status_pengajuan == 4)
+                                        <span style="color:green;">Lolos</span>
+                                    @elseif($p->status_pengajuan == 5)
+                                        <span style="color:red;">Tidak Lolos</span>
+                                    @elseif($p->status_pengajuan == 6)
+                                        <span style="color:rgb(255, 0, 212);">Dibatalkan</span>
+                                    @else
+                                        Unknown
+                                    @endif
+                                </td>
+                                <td>
+                                    <ul>
+                                        @if(array_key_exists($p->idusulan_bisnis, $anggota))
+                                            @foreach($anggota[$p->idusulan_bisnis] as $a)
+                                                <li>{{ $a['nama'] }} ({{ $a['nim'] }}) @if($a['tipe_anggota'] == 1) - Ketua @endif</li>
+                                            @endforeach
+                                        @endif
+                                    </ul>
+                                </td>
+
+                            </tr>
+                            @endif
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h2 class="card-title">List Program AYE yang Ditolak</h2>
+        </div>
+        <div class="card-body">
+            <div class="table-container">
+                <table class="table-striped" id="tableditolak">
+                    <thead>
+                        <tr>
+                            <th>No</th>
+                            <th>Tahun</th>
+                            <th>Nama Bisnis</th>
+                            <th>Bidang</th>
+                            <th>Status Bisnis</th>
+                            <th>Status Pengajuan</th>
+                            <th>Anggota</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @php
+                            $no = 1;
+                        @endphp
+                        @foreach($pendaftaran as $p)
+                            @if($p->status_pengajuan == 5)
+                            <tr onclick="viewPendaftaranDetail({{ $p->idusulan_bisnis }})">
+                                <td>{{ $no++ }}</td>
+                                <td>{{ $p->tahun }}</td>
+                                <td>{{ $p->nama_bisnis }}</td>
+                                <td>{{ $p->nama_bidang }}</td>
+                                <td>{{ $p->status_bisnis == 1 ? 'Ide Bisnis' : 'Sudah Berjalan' }}</td>
+                                <td>
+                                    @if($p->status_pengajuan == 1)
+                                        <span style="color:black">Draft</span>
+                                    @elseif($p->status_pengajuan == 2)
+                                        <span style="color:rgb(30, 0, 255);">Menunggu Validasi Ketua</span>
+                                    @elseif($p->status_pengajuan == 3)
+                                        <span style="color:rgb(0, 170, 255);">Diajukan</span>
+                                    @elseif($p->status_pengajuan == 4)
+                                        <span style="color:green;">Lolos</span>
+                                    @elseif($p->status_pengajuan == 5)
+                                        <span style="color:red;">Tidak Lolos</span>
+                                    @elseif($p->status_pengajuan == 6)
+                                        <span style="color:rgb(255, 0, 212);">Dibatalkan</span>
                                     @else
                                         Unknown
                                     @endif
@@ -241,7 +385,63 @@
                     }
                 ]
             });
+
+            // Initialize DataTables untuk tabel disetujui
+            $('#tabledisetujui').DataTable({
+                paging: true,
+                pageLength: 10,
+                lengthChange: true,
+                searching: true,
+                ordering: true,
+                info: true,
+                autoWidth: false,
+                language: {
+                    url: '//cdn.datatables.net/plug-ins/1.13.7/i18n/id.json'
+                },
+                dom: 'Bfrtip',
+                buttons: [
+                    {
+                        extend: 'excel',
+                        text: '📊 Export Excel',
+                        filename: 'Program_AYE_Disetuji_' + new Date().toISOString().split('T')[0],
+                        title: 'List Program AYE yang Disetujui'
+                    },
+                    {
+                        extend: 'print',
+                        text: '🖨️ Print'
+                    }
+                ]
+            });
+
+            // Initialize DataTables untuk tabel Ditolak
+            $('#tableditolak').DataTable({
+                paging: true,
+                pageLength: 10,
+                lengthChange: true,
+                searching: true,
+                ordering: true,
+                info: true,
+                autoWidth: false,
+                language: {
+                    url: '//cdn.datatables.net/plug-ins/1.13.7/i18n/id.json'
+                },
+                dom: 'Bfrtip',
+                buttons: [
+                    {
+                        extend: 'excel',
+                        text: '📊 Export Excel',
+                        filename: 'Program_AYE_Ditolak_' + new Date().toISOString().split('T')[0],
+                        title: 'List Program AYE yang Ditolak'
+                    },
+                    {
+                        extend: 'print',
+                        text: '🖨️ Print'
+                    }
+                ]
+            });
         });
+
+        
 
         function viewPendaftaranDetail(idusulan_bisnis){
             $('#form_idusulan_bisnis').val(idusulan_bisnis);

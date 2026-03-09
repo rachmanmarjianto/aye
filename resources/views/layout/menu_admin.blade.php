@@ -10,6 +10,25 @@
             </a>
         </div> --}}
 
+        <div class="nav-item @if($menu == 'master') open @endif">
+            <div class="nav-link" onclick="toggleSubmenu(this)">
+                <span class="nav-link-icon">📊</span>
+                <span class="nav-link-text">Master</span>
+                {{-- <span class="nav-link-badge">24</span> --}}
+                <span class="nav-link-arrow">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+                    </svg>
+                </span>
+            </div>
+            <div class="nav-submenu">
+                <a href="{{ route('admin.master.bidang_bisnis') }}" class="nav-link @if($submenu == 'bidang_bisnis') active @endif">
+                    <span class="nav-link-text">Bidang Bisnis</span>
+                </a>
+                
+            </div>
+        </div>
+
         <!-- Menu with Submenu (2 Level) -->
         <div class="nav-item @if($menu == 'pendaftaran') open @endif">
             <div class="nav-link" onclick="toggleSubmenu(this)">

@@ -232,11 +232,14 @@
         </div>
     </div>
 
-    <div class="card" id="buttons_card" @if(session('success') || count($anggota) > 0) @else style="display:none" @endif>
-        <div class="card-body" >
-            <div class="btn-group-right" style="margin-top:0px" id="btn_update_simpan">
-                <button type="button" class="btn btn-outline" onclick="submit_pendaftaran_form(1)">Simpan Draft</button>
-                <button type="submit" class="btn btn-primary" onclick="submit_pendaftaran_form(3)">Ajukan</button>
+    <div class="card"  @if(session('success') || count($anggota) > 0) @else style="display:none" @endif>
+        <div class="card-body" id="buttons_card">
+            <div class="btn-group-right" style="margin-top:0px; display:flex; gap:10px; justify-content: space-between;">
+                <button type="button" class="btn btn-danger" onclick="submit_pendaftaran_form(6)">Batalkan</button>
+                <div style="display:flex; gap:10px;">
+                    <button type="button" class="btn btn-outline" onclick="submit_pendaftaran_form(1)">Simpan Draft</button>
+                    <button type="submit" class="btn btn-primary" onclick="submit_pendaftaran_form(3)">Ajukan</button>
+                </div>
             </div>
         </div>
     </div>
@@ -318,7 +321,7 @@
             }
 
             if(status > 0){
-                $('#input_status_pengajuan').html('Proses...');
+                $('#buttons_card').html('Proses...');
             }
 
             if(status == 0){

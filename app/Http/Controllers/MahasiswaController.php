@@ -70,7 +70,7 @@ class MahasiswaController extends Controller
         date_default_timezone_set('Asia/Jakarta');
         $tahun = date('Y');
 
-        $bidangbisnis = DB::table('bidang_bisnis')->get();
+        $bidangbisnis = DB::table('bidang_bisnis')->where('status', 1)->get();
 
         $pendaftaran = [];
 
@@ -134,7 +134,9 @@ class MahasiswaController extends Controller
             }
         }
         
-        $bidangbisnis = DB::table('bidang_bisnis')->get();
+        $bidangbisnis = DB::table('bidang_bisnis')->where('status', 1)->get();
+
+        // dd($pendaftaran);
 
         return view('mahasiswa.pendaftaran_baru_view', compact('menu', 'submenu', 'pendaftaran', 'tahun', 'bidangbisnis', 'anggota', 'file_proposal', 'file_bmc'));
     }
@@ -192,7 +194,7 @@ class MahasiswaController extends Controller
             }
         }
         
-        $bidangbisnis = DB::table('bidang_bisnis')->get();
+        $bidangbisnis = DB::table('bidang_bisnis')->where('status', 1)->get();
 
         return view('mahasiswa.pendaftaran_baru', compact('menu', 'submenu', 'pendaftaran', 'tahun', 'bidangbisnis', 'anggota', 'file_proposal', 'file_bmc'));
     }
@@ -718,6 +720,9 @@ class MahasiswaController extends Controller
         if($request->status_pengajuan == 3){
             return redirect()->route('mahasiswa.index')->with('success', 'Pendaftaran berhasil diajukan');
         }
+        else if($request->status_pengajuan == 6){
+            return redirect()->route('mahasiswa.index')->with('success', 'Pendaftaran berhasil Dibatalkan!!');
+        }
 
         return redirect()->back()->with('success', 'Pendaftaran berhasil diperbarui');
     }
@@ -733,7 +738,7 @@ class MahasiswaController extends Controller
             if($usulan_bisnis->status_pengajuan == 1){
                 return redirect()->route('mahasiswa.pendaftaran_baru_edit', ['idusulan_bisnis' => Crypt::encrypt($request->idusulan_bisnis)]);
             }
-            else if($usulan_bisnis->status_pengajuan == 3){
+            else if(in_array($usulan_bisnis->status_pengajuan, [3, 4, 5, 6])){
                 return redirect()->route('mahasiswa.pendaftaran_baru_view', ['idusulan_bisnis' => Crypt::encrypt($request->idusulan_bisnis)]);
             }
         } else {
@@ -745,6 +750,63 @@ class MahasiswaController extends Controller
         }
         
 
+    }
+
+    public function update_status_pendaftaran(Request $request){
+        // dd($request->all());
+        $validator = \Validator::make($request->all(), [
+            'idusulan_bisnis' => 'required|integer',
+            'status_pengajuan' => 'required|integer'
+        ]);
+
+        if ($validator->fails()) {
+            $errors = $validator->errors()->messages(); // Mendapatkan semua error dalam bentuk array
+
+            $text = '';
+            foreach($errors as $field => $messages) {
+                foreach($messages as $message) {
+                    $text .= $message . ' ';
+                }
+            }
+
+            return redirect()->back()->with('error', $text);
+        }
+
+        $cekstatus = DB::table('usulan_bisnis as ub')
+                        ->where('ub.idusulan_bisnis', $request->idusulan_bisnis)
+                        ->value('status_pengajuan');
+
+        if(in_array($cekstatus, [4,5])){
+            return redirect()->back()->with('error', 'Gagal memperbarui status bisnis: Usulan anda telah disetujui atau ditolak oleh Ditmawa');
+        }
+
+        date_default_timezone_set('Asia/Jakarta');
+        $ts = date('Y-m-d H:i:s');
+        $today = date('Y-m-d');
+
+        try {
+            DB::beginTransaction();
+
+            DB::table('usulan_bisnis')
+                ->where('idusulan_bisnis', $request->idusulan_bisnis)
+                ->update(['status_pengajuan' => $request->status_pengajuan]);
+
+            DB::table('log_status_usulan_bisnis')
+                ->insert([
+                    'idusulan_bisnis' => $request->idusulan_bisnis,
+                    'status_pengajuan' => $request->status_pengajuan,
+                    'updated_at' => $ts,
+                    'updated_by' => session('userdata')['idusers'],
+                ]);
+
+            DB::commit();
+
+            // return redirect()->back()->with('success', 'Status bisnis berhasil diperbarui');
+            return redirect()->route('mahasiswa.index')->with('success', 'Status bisnis berhasil diperbaru');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return redirect()->back()->with('error', 'Gagal memperbarui status bisnis: ' . $e->getMessage());
+        }
     }
 
 }

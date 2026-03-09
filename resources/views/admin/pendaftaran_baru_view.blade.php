@@ -57,7 +57,28 @@
             <div class="form-group">
                 <label for="nama_bisnis">STATUS PENGAJUAN</label>
                 <div class="input-wrapper" >
-                    <input type="text" form="pendaftaran_form" value="{{ $pendaftaran[0]->status_pengajuan == 1 ? 'Draft' : 'Diajukan' }}" style="background-color: {{ $pendaftaran[0]->status_pengajuan == 1 ? '#edc2c3' : ($pendaftaran[0]->status_pengajuan == 3 ? '#c2edda' : '') }};" readonly>
+                    @if($pendaftaran[0]->status_pengajuan == 1)
+                        {{-- <span style="color:black">Draft</span> --}}
+                        <input type="text" value="Draft" style="background-color: #edc2c3;" readonly>
+                    @elseif($pendaftaran[0]->status_pengajuan == 2)
+                        {{-- <span style="color:rgb(30, 0, 255);">Menunggu Validasi Ketua</span> --}}
+                        <input type="text" value="Menunggu Validasi Ketua" style="color: rgb(30, 0, 255);" readonly>
+                    @elseif($pendaftaran[0]->status_pengajuan == 3)
+                        {{-- <span style="color:rgb(0, 170, 255);">Diajukan</span> --}}
+                        <input type="text" value="Diajukan" style="color: rgb(0, 170, 255);" readonly>
+                    @elseif($pendaftaran[0]->status_pengajuan == 4)
+                        {{-- <span style="color:green;">Lolos</span> --}}
+                        <input type="text" value="Lolos" style="color: green;" readonly>
+                    @elseif($pendaftaran[0]->status_pengajuan == 5)
+                        {{-- <span style="color:red;">Tidak Lolos</span> --}}
+                        <input type="text" value="Tidak Lolos" style="color: red;" readonly>
+                    @elseif($pendaftaran[0]->status_pengajuan == 6)
+                        {{-- <span style="color:rgb(255, 0, 212);">Dibatalkan</span> --}}
+                        <input type="text" value="Dibatalkan" style="color: rgb(255, 0, 212);" readonly>
+                    @else
+                        Unknown
+                    @endif
+                    
                 </div>
             </div>
 
@@ -161,6 +182,33 @@
         </div>
     </div>
 
+    @if(in_array($pendaftaran[0]->status_pengajuan, [3, 4, 5]))
+    <div class="card"  @if(session('success') || count($anggota) > 0) @else style="display:none" @endif>
+        <div class="card-body" id="buttons_card">
+            <div class="btn-group-right" >
+                    @if($pendaftaran[0]->status_pengajuan == 3)
+                    <button type="button" class="btn btn-danger" onclick="submit_pendaftaran_form(5)">Tolak</button>
+                    <button type="button" class="btn btn-success" onclick="submit_pendaftaran_form(4)">Setujui</button>
+                    @elseif($pendaftaran[0]->status_pengajuan == 4)
+                    <button type="button" class="btn btn-outline" onclick="submit_pendaftaran_form(5)">Ubah Jadi Tolak</button>
+                    @else
+                    <button type="button" class="btn btn-success" onclick="submit_pendaftaran_form(4)">Ubah jadi Setujui</button>
+                    @endif
+            </div>
+        </div>
+    </div>
+
+    <form id="pendaftaran_form" method="POST" action="{{ route('admin.update_status_pendaftaran') }}" enctype="multipart/form-data">
+        @csrf
+
+        <input type="hidden" name="idusulan_bisnis" value="{{ $pendaftaran[0]->idusulan_bisnis }}">
+        <input type="hidden" name="status_pengajuan" id="input_status_pengajuan">
+        
+    </form>
+
+
+    @endif
+
     
 
 
@@ -169,6 +217,38 @@
 @endsection
 
 @section('scripts')
-    
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        @if(in_array($pendaftaran[0]->status_pengajuan, [3, 4, 5]))
+        function submit_pendaftaran_form(status) {
+            let message = status === 4 ? 'Anda yakin ingin menyetujui pendaftaran ini?' : 'Anda yakin ingin menolak pendaftaran ini?';
+            let icon = status === 4 ? 'question' : 'warning';
+            let confirmText = status === 4 ? 'Setujui' : 'Tolak';
+
+            Swal.fire({
+                title: 'Konfirmasi',
+                text: message,
+                icon: icon,
+                showCancelButton: true,
+                confirmButtonColor: status === 4 ? '#28a745' : '#dc3545',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: confirmText,
+                cancelButtonText: 'Batal'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    document.getElementById('input_status_pengajuan').value = status;
+
+                    if(status > 0){
+                        $('#buttons_card').html('Proses...');
+                    }            
+                    
+                    document.getElementById('pendaftaran_form').submit();
+                }
+            });
+        }
+
+        @endif
+
+    </script>
     
 @endsection

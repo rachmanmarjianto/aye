@@ -55,6 +55,31 @@
             </div>
 
             
+
+            <div class="form-group">
+                <label for="link_sosial_media">Status Usulan </label>
+                <div class="input-wrapper">
+                    @if($pendaftaran[0]->status_pengajuan == 1)
+                        <input type="text"  value="Draft" readonly>
+                    @elseif($pendaftaran[0]->status_pengajuan == 2)
+                        {{-- <span style="color:rgb(30, 0, 255);">Menunggu Validasi Ketua</span> --}}
+                        <input style="color:rgb(30, 0, 255);" type="text"  value="Menunggu Validasi Ketua" readonly>
+                    @elseif($pendaftaran[0]->status_pengajuan == 3)
+                        <input style="color:rgb(0, 170, 255);" type="text"  value="Diajukan" readonly>
+                    @elseif($pendaftaran[0]->status_pengajuan == 4)
+                        <input style="color:green;" type="text"  value="Lolos" readonly>
+                    @elseif($pendaftaran[0]->status_pengajuan == 5)
+                        <input style="color:red;" type="text"  value="Tidak Lolos" readonly>
+                    @elseif($pendaftaran[0]->status_pengajuan == 6)
+                        <input style="color:rgb(255, 0, 212);" type="text"  value="Dibatalkan" readonly>
+                    @else
+                        Unknown
+                    @endif
+                    
+                </div>
+            </div>
+
+            
             
         </div>
     </div>
@@ -154,6 +179,26 @@
         </div>
     </div>
 
+    @if(in_array($pendaftaran[0]->status_pengajuan, [3,6]))
+    <div class="card"  @if(session('success') || count($anggota) > 0) @else style="display:none" @endif>
+        <div class="card-body" id="buttons_card">
+            <div class="btn-group-right" >
+                    <button type="button" class="btn btn-primary" onclick="submit_pendaftaran_form(1)">Ubah jadi Draft</button>
+            </div>
+        </div>
+    </div>
+
+    <form id="pendaftaran_form" method="POST" action="{{ route('mahasiswa.update_status_pendaftaran') }}" enctype="multipart/form-data">
+        @csrf
+
+        <input type="hidden" name="idusulan_bisnis" value="{{ $pendaftaran[0]->idusulan_bisnis }}">
+        <input type="hidden" name="status_pengajuan" id="input_status_pengajuan">
+        
+    </form>
+
+
+    @endif
+
     
 
 
@@ -162,6 +207,21 @@
 @endsection
 
 @section('scripts')
-    
+    <script>
+        @if(in_array($pendaftaran[0]->status_pengajuan, [3,6]))
+        function submit_pendaftaran_form(status) {
+
+            document.getElementById('input_status_pengajuan').value = status;
+
+            if(status > 0){
+                $('#buttons_card').html('Proses...');
+            }            
+            
+            document.getElementById('pendaftaran_form').submit();
+        }
+
+        @endif
+
+    </script>
     
 @endsection

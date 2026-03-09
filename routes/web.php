@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\MahasiswaController;
 use App\Http\Controllers\FilestorageController;
+use App\Http\Controllers\AdminController;
 
 /*
 |--------------------------------------------------------------------------
@@ -57,6 +58,7 @@ Route::middleware(['isLogin:3'])->group(function () {
     Route::post('/mahasiswa/pendaftaran-baru/hapus-anggota', [MahasiswaController::class, 'hapus_anggota'])->name('mahasiswa.hapus_anggota');
     Route::post('/mahasiswa/pendaftaran-baru/view-form', [MahasiswaController::class, 'view_form'])->name('mahasiswa.view_form');
     Route::get('/mahasiswa/pendaftaran-baru/view/{idusulan_bisnis}', [MahasiswaController::class, 'pendaftaran_baru_view'])->name('mahasiswa.pendaftaran_baru_view');
+    Route::post('/mahasiswa/pendaftaran-baru/update-status', [MahasiswaController::class, 'update_status_pendaftaran'])->name('mahasiswa.update_status_pendaftaran');
 });
 
 Route::middleware(['isLogin:all'])->group(function () {
@@ -65,10 +67,16 @@ Route::middleware(['isLogin:all'])->group(function () {
 });
 
 Route::middleware(['isLogin:0'])->group(function () {
-    Route::get('/admin', [App\Http\Controllers\AdminController::class, 'index'])->name('admin.index');
-    Route::post('/admin/view-form', [App\Http\Controllers\AdminController::class, 'view_form'])->name('admin.view_form');
-    Route::get('/admin/view/{idusulan_bisnis}', [App\Http\Controllers\AdminController::class, 'pendaftaran_baru_view'])->name('admin.pendaftaran_baru_view');
-    
+    Route::get('/admin', [AdminController::class, 'index'])->name('admin.index');
+    Route::post('/admin/view-form', [AdminController::class, 'view_form'])->name('admin.view_form');
+    Route::get('/admin/view/{idusulan_bisnis}', [AdminController::class, 'pendaftaran_baru_view'])->name('admin.pendaftaran_baru_view');
+    Route::get('/admin/master/bidang-bisnis', [AdminController::class, 'bidang_bisnis'])->name('admin.master.bidang_bisnis');
+    Route::get('/admin/master/bidang-bisnis/tambah', [AdminController::class, 'bidang_bisnis_tambah'])->name('admin.master.bidang_bisnis.tambah');
+    Route::post('/admin/master/bidang-bisnis/tambah', [AdminController::class, 'bidang_bisnis_tambah_submit'])->name('admin.master.bidang_bisnis.tambah.submit');
+    Route::get('/admin/master/bidang-bisnis/edit/{id}', [AdminController::class, 'bidang_bisnis_edit'])->name('admin.master.bidang_bisnis.edit');
+    Route::post('/admin/master/bidang-bisnis/edit', [AdminController::class, 'bidang_bisnis_edit_submit'])->name('admin.master.bidang_bisnis.edit.submit');
+    Route::get('/admin/master/bidang-bisnis/hapus/{id}', [AdminController::class, 'bidang_bisnis_hapus'])->name('admin.master.bidang_bisnis.hapus');
+    Route::post('/admin/update_status', [AdminController::class, 'update_status_pendaftaran'])->name('admin.update_status_pendaftaran');
 });
 
 

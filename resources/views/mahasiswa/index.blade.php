@@ -38,18 +38,24 @@
                     </thead>
                     <tbody>
                         @foreach($pendaftaran as $p)
-                            <tr @if($p->status_pengajuan == 1) style="background-color: #edc2c3; cursor:pointer"  @elseif($p->status_pengajuan == 3) style="background-color: #c2edda;; cursor:pointer" @endif onclick="viewPendaftaranDetail({{ $p->idusulan_bisnis }})">
+                            <tr style="cursor:pointer" onclick="viewPendaftaranDetail({{ $p->idusulan_bisnis }})">
                                 <td>{{ $p->tahun }}</td>
                                 <td>{{ $p->nama_bisnis }}</td>
                                 <td>{{ $p->nama_bidang }}</td>
                                 <td>{{ $p->status_bisnis == 1 ? 'Ide Bisnis' : 'Sudah Berjalan' }}</td>
                                 <td>
                                     @if($p->status_pengajuan == 1)
-                                        Draft
+                                        <span style="color:black">Draft</span>
                                     @elseif($p->status_pengajuan == 2)
-                                        Menunggu Validasi Ketua
+                                        <span style="color:rgb(30, 0, 255);">Menunggu Validasi Ketua</span>
                                     @elseif($p->status_pengajuan == 3)
-                                        Diajukan
+                                        <span style="color:rgb(0, 170, 255);">Diajukan</span>
+                                    @elseif($p->status_pengajuan == 4)
+                                        <span style="color:green;">Lolos</span>
+                                    @elseif($p->status_pengajuan == 5)
+                                        <span style="color:red;">Tidak Lolos</span>
+                                    @elseif($p->status_pengajuan == 6)
+                                        <span style="color:rgb(255, 0, 212);">Dibatalkan</span>
                                     @else
                                         Unknown
                                     @endif

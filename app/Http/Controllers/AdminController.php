@@ -145,4 +145,134 @@ class AdminController extends Controller
 
         return view('admin.pendaftaran_baru_view', compact('menu', 'submenu', 'pendaftaran', 'tahun', 'bidangbisnis', 'anggota', 'file_proposal', 'file_bmc'));
     }
+
+    public function bidang_bisnis(){
+        $menu = 'master';
+        $submenu = 'bidang_bisnis';
+
+        $bidangbisnis = DB::table('bidang_bisnis')->where('status', 1)->get();
+
+        return view('admin.bidang_bisnis', compact('menu', 'submenu', 'bidangbisnis'));
+    }
+
+    public function bidang_bisnis_tambah(){
+        $menu = 'master';
+        $submenu = 'bidang_bisnis';
+
+        return view('admin.tambah_bidang_bisnis', compact('menu', 'submenu'));
+    }
+
+    public function bidang_bisnis_tambah_submit(Request $request){
+
+        // dd($request->all());
+        $request->validate([
+            'nama_bidang' => 'required',
+        ]);
+
+        $juml_bidang = DB::table('bidang_bisnis')
+                        ->count();
+
+        DB::table('bidang_bisnis')->insert([
+            'idbidang_bisnis' => $juml_bidang + 1,
+            'nama_bidang' => $request->nama_bidang,
+            'status' => 1,
+        ]);
+
+        return redirect()->route('admin.master.bidang_bisnis')->with('success', 'Bidang bisnis berhasil ditambahkan');
+    }
+
+    public function bidang_bisnis_edit($id){
+        $menu = 'master';
+        $submenu = 'bidang_bisnis';
+
+        $idbidang_bisnis = Crypt::decrypt($id);
+
+        $bidangbisnis = DB::table('bidang_bisnis')
+                            ->where('idbidang_bisnis', $idbidang_bisnis)
+                            ->first();
+
+        if(!$bidangbisnis){
+            return redirect()->route('admin.master.bidang_bisnis')->with('error', 'Bidang bisnis tidak ditemukan');
+        }
+
+        return view('admin.edit_bidang_bisnis', compact('menu', 'submenu', 'bidangbisnis'));
+    }
+
+    public function bidang_bisnis_edit_submit(Request $request){
+        // dd($request->all());
+        $request->validate([
+            'idbidang_bisnis' => 'required',
+            'nama_bidang' => 'required',
+        ]);
+
+        try {
+            DB::table('bidang_bisnis')
+            ->where('idbidang_bisnis', $request->idbidang_bisnis)
+            ->update([
+                'nama_bidang' => $request->nama_bidang,
+            ]);
+        } catch (\Exception $e) {
+            return redirect()->route('admin.master.bidang_bisnis')->with('error', 'Gagal mengupdate bidang bisnis');
+        }
+
+        return redirect()->route('admin.master.bidang_bisnis')->with('success', 'Bidang bisnis berhasil diupdate');
+    }
+
+    public function bidang_bisnis_hapus($id){
+        $idbidang_bisnis = Crypt::decrypt($id);
+
+        try {
+            DB::table('bidang_bisnis')
+                ->where('idbidang_bisnis', $idbidang_bisnis)
+                ->update(['status' => 0]);
+        } catch (\Exception $e) {
+            return redirect()->route('admin.master.bidang_bisnis')->with('error', 'Gagal menghapus bidang bisnis');
+        }
+
+        return redirect()->route('admin.master.bidang_bisnis')->with('success', 'Bidang bisnis berhasil dihapus');
+    }
+
+    public function update_status_pendaftaran(Request $request){
+        // dd($request->all());
+
+        $request->validate([
+            'idusulan_bisnis' => 'required',
+            'status_pengajuan' => 'required|in:4,5',
+        ]);
+
+        $cekstatus = DB::table('usulan_bisnis')
+                        ->where('idusulan_bisnis', $request->idusulan_bisnis)
+                        ->value('status_pengajuan');
+
+        if($cekstatus != 3){
+            return redirect()->back()->with('error', 'Gagal memperbarui status bisnis: Mahasiswa merubah status ajuan!');
+        }
+
+
+        date_default_timezone_set('Asia/Jakarta');
+
+        try {
+            DB::beginTransaction();
+            DB::table('usulan_bisnis')
+                ->where('idusulan_bisnis', $request->idusulan_bisnis)
+                ->update(['status_pengajuan' => $request->status_pengajuan]);
+
+            DB::table('log_status_usulan_bisnis')
+                ->insert([
+                    'idusulan_bisnis' => $request->idusulan_bisnis,
+                    'status_pengajuan' => $request->status_pengajuan,
+                    'updated_at' => date('Y-m-d H:i:s'),
+                    'updated_by' => session('userdata')['idusers'],
+                ]);
+
+            DB::commit();
+
+            return redirect()->route('admin.index')->with('success', 'Status usulan bisnis berhasil diperbaru');
+        } catch (\Exception $e) {
+
+            return redirect()->back()->with('error', 'Gagal memperbarui status bisnis: ' . $e->getMessage());
+        }
+
+        
+    }
 }
