@@ -205,7 +205,7 @@
                         @endphp
                         @foreach($pendaftaran as $p)
                             @if($p->status_pengajuan == 4)
-                            <tr onclick="viewPendaftaranDetail({{ $p->idusulan_bisnis }})">
+                            <tr style="cursor:pointer" onclick="viewPendaftaranDetail({{ $p->idusulan_bisnis }})">
                                 <td>{{ $no++ }}</td>
                                 <td>{{ $p->tahun }}</td>
                                 <td>{{ $p->nama_bisnis }}</td>
@@ -271,7 +271,7 @@
                         @endphp
                         @foreach($pendaftaran as $p)
                             @if($p->status_pengajuan == 5)
-                            <tr onclick="viewPendaftaranDetail({{ $p->idusulan_bisnis }})">
+                            <tr style="cursor:pointer" onclick="viewPendaftaranDetail({{ $p->idusulan_bisnis }})">
                                 <td>{{ $no++ }}</td>
                                 <td>{{ $p->tahun }}</td>
                                 <td>{{ $p->nama_bisnis }}</td>
